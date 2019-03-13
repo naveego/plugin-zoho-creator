@@ -1,0 +1,41 @@
+{
+  "id": "plugin-zoho-creator",
+  "displayName": "Zoho Creator Publisher",
+  "description": "Publisher which pulls data from a Zoho Creator instance",
+  "apiVersion": "2",
+  "versionDescription": "Version 1",
+  "version": "1.0.0",
+  "iconFile": "icon.jpg",
+  "executable": "PluginZohoCreator",
+  "kind": "publisher",
+  "os": "$GOOS",
+  "arch": "$GOARCH",
+  "canProduceMultipleSchemas": true,
+  "canAcceptQueryBasedSchemas": false,
+  "canUseOAuth": false,
+  "canWrite": false,
+  "configSchema": {
+    "ui": {
+      "ui:order": [
+        "Username", "Password"
+      ],
+      "Password": {
+        "ui:widget": "password"
+      }
+    },
+    "schema": {
+      "type": "object",
+      "properties": {
+        "Username": {
+          "type": "string"
+        },
+        "Password": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "Username", "Password"
+      ]
+    }
+  }
+}
