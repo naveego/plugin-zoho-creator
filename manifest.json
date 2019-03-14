@@ -17,24 +17,20 @@
   "configSchema": {
     "ui": {
       "ui:order": [
-        "Username", "Password"
-      ],
-      "Password": {
-        "ui:widget": "password"
-      }
+        "Token"
+      ]
     },
     "schema": {
       "type": "object",
       "properties": {
-        "Username": {
-          "type": "string"
-        },
-        "Password": {
-          "type": "string"
+        "Token": {
+          "type": "string",
+          "title": "Authentication Token",
+          "description": "Zoho Creator API authentication token. You can get one here: https://accounts.zoho.com/apiauthtoken/create?SCOPE=ZohoCreator/creatorapi"
         }
       },
       "required": [
-        "Username", "Password"
+        "Token"
       ]
     }
   }

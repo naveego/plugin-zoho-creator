@@ -4,8 +4,7 @@ namespace PluginZohoCreator.Helper
 {
     public class Settings
     {
-        public string Username { get; set; }
-        public string Password { get; set; }
+        public string Token { get; set; }
 
         /// <summary>
         /// Validates the settings input object
@@ -13,14 +12,9 @@ namespace PluginZohoCreator.Helper
         /// <exception cref="Exception"></exception>
         public void Validate()
         {
-            if (String.IsNullOrEmpty(Username))
+            if (String.IsNullOrEmpty(Token))
             {
-                throw new Exception("the Username property must be set");
-            }
-
-            if (String.IsNullOrEmpty(Password))
-            {
-                throw new Exception("the Password property must be set");
+                throw new Exception("the Token property must be set");
             }
         }
     }

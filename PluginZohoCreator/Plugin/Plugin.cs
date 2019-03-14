@@ -141,6 +141,7 @@ namespace PluginZohoCreator.Plugin
             try
             {
                 Logger.Debug("Getting applications...");
+
                 var response =
                     await _client.GetAsync("https://creator.zoho.com/api/json/applications?scope=creatorapi");
                 response.EnsureSuccessStatusCode();
@@ -158,9 +159,10 @@ namespace PluginZohoCreator.Plugin
             try
             {
                 Logger.Info(
-                    $"Applicaitions attempted: {applicationsResponse.Result.ApplicationsList.Applications.Count}");
+                    $"Applications attempted: {applicationsResponse.Result.ApplicationsList.ApplicationsObjects.First().Applications.Count}");
 
-                var tasks = applicationsResponse.Result.ApplicationsList.Applications.Select(x =>
+                var tasks = applicationsResponse.Result.ApplicationsList.ApplicationsObjects.First().Applications
+                    .Select(x =>
                         GetSchemasForApplication(x, applicationsResponse.Result.ApplicationOwner))
                     .ToArray();
 
@@ -348,7 +350,11 @@ namespace PluginZohoCreator.Plugin
             // get all schemas for each application
             try
             {
-                var tasks = formsAndViewsResponse.ApplicationName.First().ViewList
+                var formsAndViewsObject =
+                    JsonConvert.DeserializeObject<FormsAndViewsObject>(
+                        JsonConvert.SerializeObject(formsAndViewsResponse.ApplicationName[1]));
+
+                var tasks = formsAndViewsObject.ViewList.Where(f => f.FormLinkName != null)
                     .Select(x => GetSchemaForView(x, application.LinkName, applicationOwner))
                     .ToArray();
 
@@ -375,8 +381,8 @@ namespace PluginZohoCreator.Plugin
             // base schema to be added to
             var schema = new Schema
             {
-                Id = view.ComponentName,
-                Name = view.DisplayName,
+                Id = $"{applicationName}-{view.ComponentName}",
+                Name = $"{applicationName} {view.DisplayName}",
                 Description = "",
                 PublisherMetaJson = JsonConvert.SerializeObject(new PublisherMetaJson
                 {
@@ -404,17 +410,24 @@ namespace PluginZohoCreator.Plugin
                 // if response is empty or call did not succeed return null
                 if (!IsSuccessAndNotEmpty(response))
                 {
-                    Logger.Debug($"No fields for: {view.FormLinkName}");
+                    Logger.Debug($"No fields for: {view.DisplayName}");
                     return null;
                 }
 
-                Logger.Debug($"Got fields for: {view.FormLinkName}");
+                Logger.Debug($"Got fields for: {view.DisplayName}");
 
                 // for each field in the schema add a new property
                 var fieldsResponse =
                     JsonConvert.DeserializeObject<FieldsResponse>(await response.Content.ReadAsStringAsync());
 
-                foreach (var field in fieldsResponse.ApplicationName.First().FormName.First().Fields)
+                var formNameObject =
+                    JsonConvert.DeserializeObject<FormNameObject>(
+                        JsonConvert.SerializeObject(fieldsResponse.ApplicationName[1]));
+
+                var fieldsObject =
+                    JsonConvert.DeserializeObject<FormName>(JsonConvert.SerializeObject(formNameObject.FormName[1]));
+
+                foreach (var field in fieldsObject.Fields)
                 {
                     var property = new Property
                     {
@@ -425,13 +438,13 @@ namespace PluginZohoCreator.Plugin
                         IsCreateCounter = false,
                         IsUpdateCounter = false,
                         TypeAtSource = field.ApiType.ToString(),
-                        IsNullable = true
+                        IsNullable = !field.Unique
                     };
 
                     schema.Properties.Add(property);
                 }
 
-                Logger.Debug($"Added schema for: {applicationName}");
+                Logger.Debug($"Added schema for: {applicationName} {view.DisplayName}");
                 return schema;
             }
             catch (Exception e)

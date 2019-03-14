@@ -6,13 +6,13 @@ namespace PluginZohoCreator.DataContracts
     public class FieldsResponse
     {
         [JsonProperty("application-name")]
-        public List<FormNameObject> ApplicationName { get; set; }
+        public List<object> ApplicationName { get; set; }
     }
 
     public class FormNameObject
     {
         [JsonProperty("form-name")]
-        public List<FormName> FormName { get; set; }
+        public List<object> FormName { get; set; }
     }
     
     public class FormName

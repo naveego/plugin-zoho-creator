@@ -15,7 +15,7 @@ namespace PluginZohoCreator.Helper
             Off
         }
         
-        private static string _path = @"plugin-zoho-log.txt";
+        private static string _path = @"plugin-zoho-creator-log.txt";
         private static LogLevel _level = LogLevel.Info;
         private static ReaderWriterLockSlim _readWriteLock = new ReaderWriterLockSlim();
         

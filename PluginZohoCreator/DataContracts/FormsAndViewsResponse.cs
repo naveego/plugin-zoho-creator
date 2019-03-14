@@ -1,12 +1,14 @@
+using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace PluginZohoCreator.DataContracts
 {
     public class FormsAndViewsResponse
     {
         [JsonProperty("application-name")]
-        public List<FormsAndViewsObject> ApplicationName { get; set; }   
+        public List<object> ApplicationName { get; set; }   
     }
 
     public class FormsAndViewsObject

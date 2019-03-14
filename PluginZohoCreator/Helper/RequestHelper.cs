@@ -12,7 +12,7 @@ namespace PluginZohoCreator.Helper
         
         public RequestHelper(Settings settings, HttpClient client)
         {
-            _authenticator = new Authenticator(settings, client);
+            _authenticator = new Authenticator(settings);
             _client = client;
         }
 
@@ -28,7 +28,7 @@ namespace PluginZohoCreator.Helper
             // get the token
             try
             {
-                token = await _authenticator.GetToken();
+                token = _authenticator.GetToken();
             }
             catch (Exception e)
             {
@@ -72,7 +72,7 @@ namespace PluginZohoCreator.Helper
             // get the token
             try
             {
-                token = await _authenticator.GetToken();
+                token = _authenticator.GetToken();
             }
             catch (Exception e)
             {
@@ -118,7 +118,7 @@ namespace PluginZohoCreator.Helper
             // get the token
             try
             {
-                token = await _authenticator.GetToken();
+                token = _authenticator.GetToken();
             }
             catch (Exception e)
             {

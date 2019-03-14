@@ -14,11 +14,17 @@ namespace PluginZohoCreator.DataContracts
         [JsonProperty("application_owner")]
         public string ApplicationOwner { get; set; }
         
-        [JsonProperty("applications_list")]
+        [JsonProperty("application_list")]
         public ApplicationsList ApplicationsList { get; set; }
     }
-
+    
     public class ApplicationsList
+    {
+        [JsonProperty("applications")]
+        public List<ApplicationObject>ApplicationsObjects { get; set; }
+    }
+    
+    public class ApplicationObject
     {
         [JsonProperty("application")]
         public List<Application>Applications { get; set; }
@@ -38,4 +44,6 @@ namespace PluginZohoCreator.DataContracts
         [JsonProperty("created_time")]
         public string CreatedTime { get; set; }
     }
+
+    
 }
