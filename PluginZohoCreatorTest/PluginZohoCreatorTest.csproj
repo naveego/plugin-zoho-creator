@@ -20,4 +20,9 @@
       <ProjectReference Include="..\PluginZohoCreator\PluginZohoCreator.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Helper" />
+      <Folder Include="Plugin" />
+    </ItemGroup>
+
 </Project>
