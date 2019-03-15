@@ -254,18 +254,26 @@ namespace PluginZohoCreator.Plugin
                 // publish each record in the page
                 foreach (var record in recordsResponse[publisherMetaJson.FormName])
                 {
-                    foreach (var property in schema.Properties)
+                    try
                     {
-                        if (property.Type == PropertyType.String)
+                        foreach (var property in schema.Properties)
                         {
-                            var value = record[property.Id];
-                            if (!(value is string))
+                            if (property.Type == PropertyType.String)
                             {
-                                record[property.Id] = JsonConvert.SerializeObject(value);
+                                var value = record[property.Id];
+                                if (!(value is string))
+                                {
+                                    record[property.Id] = JsonConvert.SerializeObject(value);
+                                }
                             }
                         }
                     }
-
+                    catch (Exception e)
+                    {
+                        Logger.Error(e.Message);
+                        continue;
+                    }
+                    
                     var recordOutput = new Record
                     {
                         Action = Record.Types.Action.Upsert,
@@ -427,6 +435,20 @@ namespace PluginZohoCreator.Plugin
                 var fieldsObject =
                     JsonConvert.DeserializeObject<FormName>(JsonConvert.SerializeObject(formNameObject.FormName[1]));
 
+                var key = new Property
+                {
+                    Id = "ID",
+                    Name = "ID",
+                    Type = PropertyType.String,
+                    IsKey = true,
+                    IsCreateCounter = false,
+                    IsUpdateCounter = false,
+                    TypeAtSource = "ID",
+                    IsNullable = false
+                };
+
+                schema.Properties.Add(key);
+                
                 foreach (var field in fieldsObject.Fields)
                 {
                     var property = new Property
