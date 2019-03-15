@@ -2,10 +2,9 @@
 using System.Linq;
 using Grpc.Core;
 using PluginZohoCreator.Helper;
-using PluginZohoCreator.Plugin;
 using Pub;
 
-namespace Plugin_Zoho
+namespace PluginZohoCreator
 {
     class Program
     {
@@ -25,7 +24,7 @@ namespace Plugin_Zoho
                 // create new server and start it
                 Server server = new Server
                 {
-                    Services = { Publisher.BindService(new Plugin()) },
+                    Services = { Publisher.BindService(new Plugin.Plugin()) },
                     Ports = { new ServerPort("localhost", 0, ServerCredentials.Insecure) }
                 };
                 server.Start();
