@@ -6,6 +6,9 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Grpc.Core;
 using Newtonsoft.Json;
+using PluginZohoCreator.API.Discover;
+using PluginZohoCreator.API.Read;
+using PluginZohoCreator.API.Utility;
 using PluginZohoCreator.DataContracts;
 using PluginZohoCreator.Helper;
 using Pub;
@@ -135,46 +138,9 @@ namespace PluginZohoCreator.Plugin
             Logger.Info("Discovering Schemas...");
 
             DiscoverSchemasResponse discoverSchemasResponse = new DiscoverSchemasResponse();
-            ApplicationsResponse applicationsResponse;
-
-            // get the applications present in Zoho
-            try
-            {
-                Logger.Debug("Getting applications...");
-
-                var response =
-                    await _client.GetAsync("https://creator.zoho.com/api/json/applications?scope=creatorapi");
-                response.EnsureSuccessStatusCode();
-
-                applicationsResponse =
-                    JsonConvert.DeserializeObject<ApplicationsResponse>(await response.Content.ReadAsStringAsync());
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e.Message);
-                throw;
-            }
-
-            // attempt to get a schema for each view in each application
-            try
-            {
-                Logger.Info(
-                    $"Applications attempted: {applicationsResponse.Result.ApplicationsList.ApplicationsObjects.First().Applications.Count}");
-
-                var tasks = applicationsResponse.Result.ApplicationsList.ApplicationsObjects.First().Applications
-                    .Select(x =>
-                        GetSchemasForApplication(x, applicationsResponse.Result.ApplicationOwner))
-                    .ToArray();
-
-                await Task.WhenAll(tasks);
-
-                discoverSchemasResponse.Schemas.AddRange(tasks.SelectMany(x => x.Result).ToList());
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e.Message);
-                throw;
-            }
+            
+            discoverSchemasResponse.Schemas.AddRange(await Discover.GetAllSchemas(_client));
+            discoverSchemasResponse.Schemas.AddRange(await Discover.GetAllCustomSchemas(_client, _server.Settings.CustomSchemaList));
 
             Logger.Info($"Schemas found: {discoverSchemasResponse.Schemas.Count}");
 
@@ -189,8 +155,7 @@ namespace PluginZohoCreator.Plugin
                 discoverSchemasResponse.Schemas.AddRange(schemas.Join(refreshSchemas, schema => schema.Id,
                     refreshSchema => refreshSchema.Id,
                     (schema, refresh) => schema));
-
-                Logger.Debug($"Schemas found: {JsonConvert.SerializeObject(schemas)}");
+                
                 Logger.Debug($"Refresh requested on schemas: {JsonConvert.SerializeObject(refreshSchemas)}");
 
                 Logger.Info($"Schemas returned: {discoverSchemasResponse.Schemas.Count}");
@@ -215,42 +180,17 @@ namespace PluginZohoCreator.Plugin
             var schema = request.Schema;
             var limit = request.Limit;
             var limitFlag = request.Limit != 0;
+            var recordsCount = 0;
 
             Logger.Info($"Publishing records for schema: {schema.Name}");
-
-            // get information from schema
-            var publisherMetaJson = JsonConvert.DeserializeObject<PublisherMetaJson>(schema.PublisherMetaJson);
-
+            
             try
             {
-                Dictionary<string, List<Dictionary<string, object>>> recordsResponse;
-                int recordsCount = 0;
-                // Publish records for the given schema
-
-                // get records for schema page by page
-                var uri = String.Format(
-                    "https://creator.zoho.com/api/json/{0}/view/{1}?scope=creatorapi&zc_ownername={2}&raw=true",
-                    publisherMetaJson.ApplicationName,
-                    publisherMetaJson.ViewName,
-                    publisherMetaJson.OwnerName
-                );
-
-                var response = await _client.GetAsync(uri);
-                response.EnsureSuccessStatusCode();
-
-                // if response is empty or call did not succeed return no records
-                if (!IsSuccessAndNotEmpty(response))
-                {
-                    Logger.Info($"No records for: {schema.Name}");
-                    return;
-                }
-
-                recordsResponse =
-                    JsonConvert.DeserializeObject<Dictionary<string, List<Dictionary<string, object>>>>(
-                        await response.Content.ReadAsStringAsync());
-
-                Logger.Debug($"data: {JsonConvert.SerializeObject(recordsResponse[publisherMetaJson.FormName])}");
-
+                // get information from schema
+                var publisherMetaJson = JsonConvert.DeserializeObject<PublisherMetaJson>(schema.PublisherMetaJson);
+                
+                var recordsResponse = await Read.GetAllRecordsAsync(_client, publisherMetaJson);
+                
                 // publish each record in the page
                 foreach (var record in recordsResponse[publisherMetaJson.FormName])
                 {
@@ -321,199 +261,6 @@ namespace PluginZohoCreator.Plugin
 
             Logger.Info("Disconnected");
             return Task.FromResult(new DisconnectResponse());
-        }
-
-        /// <summary>
-        /// Gets all schemas for a given application
-        /// </summary>
-        /// <param name="application"></param>
-        /// <param name="applicationOwner"></param>
-        /// <returns></returns>
-        private async Task<List<Schema>> GetSchemasForApplication(Application application, string applicationOwner)
-        {
-            FormsAndViewsResponse formsAndViewsResponse;
-
-            // get the forms and views present in application
-            try
-            {
-                Logger.Debug($"Getting forms and views for {application.ApplicationName}...");
-
-                var uri = String.Format(
-                    "https://creator.zoho.com/api/json/{0}/formsandviews?scope=creatorapi&zc_ownername={1}",
-                    application.LinkName,
-                    applicationOwner
-                );
-                var response = await _client.GetAsync(uri);
-                response.EnsureSuccessStatusCode();
-
-                formsAndViewsResponse =
-                    JsonConvert.DeserializeObject<FormsAndViewsResponse>(await response.Content.ReadAsStringAsync());
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e.Message);
-                throw;
-            }
-
-            // get all schemas for each application
-            try
-            {
-                var formsAndViewsObject =
-                    JsonConvert.DeserializeObject<FormsAndViewsObject>(
-                        JsonConvert.SerializeObject(formsAndViewsResponse.ApplicationName[1]));
-
-                var tasks = formsAndViewsObject.ViewList.Where(f => f.FormLinkName != null)
-                    .Select(x => GetSchemaForView(x, application.LinkName, applicationOwner))
-                    .ToArray();
-
-                await Task.WhenAll(tasks);
-
-                return tasks.Where(x => x.Result != null).Select(x => x.Result).ToList();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// Gets a schema for a given form
-        /// </summary>
-        /// <param name="view"></param>
-        /// /// <param name="applicationName"></param>
-        /// <param name="applicationOwner"></param>
-        /// <returns>returns a schema or null if unavailable</returns>
-        private async Task<Schema> GetSchemaForView(View view, string applicationName, string applicationOwner)
-        {
-            // base schema to be added to
-            var schema = new Schema
-            {
-                Id = $"{applicationName}-{view.ComponentName}",
-                Name = $"{applicationName} {view.DisplayName}",
-                Description = "",
-                PublisherMetaJson = JsonConvert.SerializeObject(new PublisherMetaJson
-                {
-                    ApplicationName = applicationName,
-                    OwnerName = applicationOwner,
-                    ViewName = view.ComponentName,
-                    FormName = view.FormLinkName
-                }),
-                DataFlowDirection = Schema.Types.DataFlowDirection.Read
-            };
-
-            try
-            {
-                Logger.Debug($"Getting fields for: {view.DisplayName}");
-
-                // get fields for module
-                var uri = String.Format(
-                    "https://creator.zoho.com/api/json/{0}/{1}/fields?scope=creatorapi&zc_ownername={2}",
-                    applicationName,
-                    view.FormLinkName,
-                    applicationOwner
-                );
-                var response = await _client.GetAsync(uri);
-
-                // if response is empty or call did not succeed return null
-                if (!IsSuccessAndNotEmpty(response))
-                {
-                    Logger.Debug($"No fields for: {view.DisplayName}");
-                    return null;
-                }
-
-                Logger.Debug($"Got fields for: {view.DisplayName}");
-
-                // for each field in the schema add a new property
-                var fieldsResponse =
-                    JsonConvert.DeserializeObject<FieldsResponse>(await response.Content.ReadAsStringAsync());
-
-                var formNameObject =
-                    JsonConvert.DeserializeObject<FormNameObject>(
-                        JsonConvert.SerializeObject(fieldsResponse.ApplicationName[1]));
-
-                var fieldsObject =
-                    JsonConvert.DeserializeObject<FormName>(JsonConvert.SerializeObject(formNameObject.FormName[1]));
-
-                var key = new Property
-                {
-                    Id = "ID",
-                    Name = "ID",
-                    Type = PropertyType.String,
-                    IsKey = true,
-                    IsCreateCounter = false,
-                    IsUpdateCounter = false,
-                    TypeAtSource = "ID",
-                    IsNullable = false
-                };
-
-                schema.Properties.Add(key);
-                
-                foreach (var field in fieldsObject.Fields)
-                {
-                    var property = new Property
-                    {
-                        Id = field.FieldName,
-                        Name = field.DisplayName,
-                        Type = GetPropertyType(field),
-                        IsKey = field.Unique,
-                        IsCreateCounter = false,
-                        IsUpdateCounter = false,
-                        TypeAtSource = field.ApiType.ToString(),
-                        IsNullable = !field.Unique
-                    };
-
-                    schema.Properties.Add(property);
-                }
-
-                Logger.Debug($"Added schema for: {applicationName} {view.DisplayName}");
-                return schema;
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e.Message);
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Gets the Naveego type from the provided Zoho information
-        /// </summary>
-        /// <param name="field"></param>
-        /// <returns>The property type</returns>
-        private PropertyType GetPropertyType(Field field)
-        {
-            switch (field.ApiType)
-            {
-                case 6:
-                case 7:
-                    return PropertyType.Float;
-                case 5:
-                case 9:
-                    return PropertyType.Integer;
-                case 10:
-                case 11:
-                    return PropertyType.Datetime;
-                default:
-                    if (field.MaxChar > 1024)
-                    {
-                        return PropertyType.Text;
-                    }
-                    else
-                    {
-                        return PropertyType.String;
-                    }
-            }
-        }
-
-        /// <summary>
-        /// Checks if a http response message is not empty and did not fail
-        /// </summary>
-        /// <param name="response"></param>
-        /// <returns></returns>
-        private bool IsSuccessAndNotEmpty(HttpResponseMessage response)
-        {
-            return response.StatusCode != HttpStatusCode.NoContent && response.IsSuccessStatusCode;
         }
     }
 }
