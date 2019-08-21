@@ -216,10 +216,16 @@ namespace PluginZohoCreatorTest.Plugin
                     "{\"result\":{\"application_list\":{\"applications\":[{\"application\":[{\"created_time\":\"2019-03-1305:29:27.0\",\"application_name\":\"EventManagement\",\"access\":\"private\",\"link_name\":\"event-management\",\"time_zone\":\"IST\",\"dateformat\":\"dd-MMM-yyyy\"}]}]},\"application_owner\":\"wyattroehler\"}}");
             
             mockHttp.When(
-                    "https://creator.zoho.com/api/json/event-management/view/Events_Calendar?scope=creatorapi&zc_ownername=wyattroehler&raw=true&authtoken=mocktoken")
+                    "https://creator.zoho.com/api/json/event-management/view/Events_Calendar?scope=creatorapi&zc_ownername=wyattroehler&startindex=0&limit=200&raw=true&authtoken=mocktoken")
                 .Respond("application/json",
                     "{\"Create_New_Event\":[{\"Subscription_Type\":\"Free\",\"Entry_Fees\":\"$0.00\",\"Venue\":\"250EFrontStreet\",\"Number_of_entries\":10,\"Event_ID\":0,\"Event_End_Time\":\"14-Mar-201908:31:52\",\"Event_Status\":\"Active\",\"Event_Image\":\"<imgsrc=\\\"https://www.google.com/url?sa=i&source=images&cd=&cad=rja&uact=8&ved=2ahUKEwj-yLWBkP_gAhWF6IMKHdhUB0QQjRx6BAgBEAU&url=https%3A%2F%2Fwww.w3schools.com%2Fw3css%2Fw3css_images.asp&psig=AOvVaw3WmqPMreHGH_RWBkQigvgc&ust=1552566751508402\\\"border=\\\"0\\\"><\\/img>\",\"Event_Start_Time\":\"13-Mar-201908:31:49\",\"Event_Category\":\"Circus\",\"Remarks\":\"Thebestestevent\",\"ID\":\"3836610000000030023\",\"Available_Entries\":10,\"Event_Name\":\"GrandEvent\"},{\"Subscription_Type\":\"Free\",\"Entry_Fees\":\"$0.00\",\"Venue\":\"250EFrontStreet\",\"Number_of_entries\":10,\"Event_ID\":0,\"Event_End_Time\":\"14-Mar-201908:31:52\",\"Event_Status\":\"Active\",\"Event_Image\":\"<imgsrc=\\\"https://www.google.com/url?sa=i&source=images&cd=&cad=rja&uact=8&ved=2ahUKEwj-yLWBkP_gAhWF6IMKHdhUB0QQjRx6BAgBEAU&url=https%3A%2F%2Fwww.w3schools.com%2Fw3css%2Fw3css_images.asp&psig=AOvVaw3WmqPMreHGH_RWBkQigvgc&ust=1552566751508402\\\"border=\\\"0\\\"><\\/img>\",\"Event_Start_Time\":\"13-Mar-201908:31:49\",\"Event_Category\":\"Circus\",\"Remarks\":\"Thebestestevent\",\"ID\":\"3836610000000030023\",\"Available_Entries\":10,\"Event_Name\":\"GrandEvent\"}]}");
 
+            mockHttp.When(
+                    "https://creator.zoho.com/api/json/event-management/view/Events_Calendar?scope=creatorapi&zc_ownername=wyattroehler&startindex=200&limit=200&raw=true&authtoken=mocktoken")
+                .Respond("application/json",
+                    "{\"Create_New_Event\":[]}");
+
+            
             Server server = new Server
             {
                 Services = {Publisher.BindService(new PluginZohoCreator.Plugin.Plugin(mockHttp.ToHttpClient()))},
@@ -280,10 +286,15 @@ namespace PluginZohoCreatorTest.Plugin
                     "{\"result\":{\"application_list\":{\"applications\":[{\"application\":[{\"created_time\":\"2019-03-1305:29:27.0\",\"application_name\":\"EventManagement\",\"access\":\"private\",\"link_name\":\"event-management\",\"time_zone\":\"IST\",\"dateformat\":\"dd-MMM-yyyy\"}]}]},\"application_owner\":\"wyattroehler\"}}");
             
             mockHttp.When(
-                    "https://creator.zoho.com/api/json/event-management/view/Events_Calendar?scope=creatorapi&zc_ownername=wyattroehler&raw=true&authtoken=mocktoken")
+                    "https://creator.zoho.com/api/json/event-management/view/Events_Calendar?scope=creatorapi&zc_ownername=wyattroehler&startindex=0&limit=200&raw=true&authtoken=mocktoken")
                 .Respond("application/json",
                     "{\"Create_New_Event\":[{\"Subscription_Type\":\"Free\",\"Entry_Fees\":\"$0.00\",\"Venue\":\"250EFrontStreet\",\"Number_of_entries\":10,\"Event_ID\":0,\"Event_End_Time\":\"14-Mar-201908:31:52\",\"Event_Status\":\"Active\",\"Event_Image\":\"<imgsrc=\\\"https://www.google.com/url?sa=i&source=images&cd=&cad=rja&uact=8&ved=2ahUKEwj-yLWBkP_gAhWF6IMKHdhUB0QQjRx6BAgBEAU&url=https%3A%2F%2Fwww.w3schools.com%2Fw3css%2Fw3css_images.asp&psig=AOvVaw3WmqPMreHGH_RWBkQigvgc&ust=1552566751508402\\\"border=\\\"0\\\"><\\/img>\",\"Event_Start_Time\":\"13-Mar-201908:31:49\",\"Event_Category\":\"Circus\",\"Remarks\":\"Thebestestevent\",\"ID\":\"3836610000000030023\",\"Available_Entries\":10,\"Event_Name\":\"GrandEvent\"},{\"Subscription_Type\":\"Free\",\"Entry_Fees\":\"$0.00\",\"Venue\":\"250EFrontStreet\",\"Number_of_entries\":10,\"Event_ID\":0,\"Event_End_Time\":\"14-Mar-201908:31:52\",\"Event_Status\":\"Active\",\"Event_Image\":\"<imgsrc=\\\"https://www.google.com/url?sa=i&source=images&cd=&cad=rja&uact=8&ved=2ahUKEwj-yLWBkP_gAhWF6IMKHdhUB0QQjRx6BAgBEAU&url=https%3A%2F%2Fwww.w3schools.com%2Fw3css%2Fw3css_images.asp&psig=AOvVaw3WmqPMreHGH_RWBkQigvgc&ust=1552566751508402\\\"border=\\\"0\\\"><\\/img>\",\"Event_Start_Time\":\"13-Mar-201908:31:49\",\"Event_Category\":\"Circus\",\"Remarks\":\"Thebestestevent\",\"ID\":\"3836610000000030023\",\"Available_Entries\":10,\"Event_Name\":\"GrandEvent\"}]}");
 
+            mockHttp.When(
+                    "https://creator.zoho.com/api/json/event-management/view/Events_Calendar?scope=creatorapi&zc_ownername=wyattroehler&startindex=200&limit=200&raw=true&authtoken=mocktoken")
+                .Respond("application/json",
+                    "{\"Create_New_Event\":[]}");
+            
             Server server = new Server
             {
                 Services = {Publisher.BindService(new PluginZohoCreator.Plugin.Plugin(mockHttp.ToHttpClient()))},

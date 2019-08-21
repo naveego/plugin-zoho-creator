@@ -19,6 +19,11 @@ namespace PluginZohoCreator.API.Discover
         {
             try
             {
+                if (customUrlList == null || customUrlList.Count == 0)
+                {
+                    return new List<Schema>();
+                }
+                
                 Logger.Info(
                     $"Custom schemas attempted: {customUrlList.Count}");
 
