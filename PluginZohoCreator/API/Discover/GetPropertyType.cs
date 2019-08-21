@@ -13,27 +13,27 @@ namespace PluginZohoCreator.API.Discover
         private static PropertyType GetPropertyType(Field field)
         {
             return PropertyType.String;
-            switch (field.ApiType)
-            {
-                case 6:
-                case 7:
-                    return PropertyType.Float;
-                case 5:
-                case 9:
-                    return PropertyType.Integer;
-                case 10:
-                case 11:
-                    return PropertyType.Datetime;
-                default:
-                    if (field.MaxChar > 1024)
-                    {
-                        return PropertyType.Text;
-                    }
-                    else
-                    {
-                        return PropertyType.String;
-                    }
-            }
+//            switch (field.ApiType)
+//            {
+//                case 6:
+//                case 7:
+//                    return PropertyType.Float;
+//                case 5:
+//                case 9:
+//                    return PropertyType.Integer;
+//                case 10:
+//                case 11:
+//                    return PropertyType.Datetime;
+//                default:
+//                    if (field.MaxChar > 1024)
+//                    {
+//                        return PropertyType.Text;
+//                    }
+//                    else
+//                    {
+//                        return PropertyType.String;
+//                    }
+//            }
         }
         
         /// <summary>
@@ -44,27 +44,27 @@ namespace PluginZohoCreator.API.Discover
         private static PropertyType GetPropertyType(CustomField field)
         {
             return PropertyType.String;
-            switch (field.Type)
-            {
-                case 6:
-                case 7:
-                    return PropertyType.Float;
-                case 5:
-                case 9:
-                    return PropertyType.Integer;
-                case 10:
-                case 11:
-                    return PropertyType.Datetime;
-                default:
-                    if (field.MaxChar > 1024)
-                    {
-                        return PropertyType.Text;
-                    }
-                    else
-                    {
-                        return PropertyType.String;
-                    }
-            }
+//            switch (field.Type)
+//            {
+//                case 6:
+//                case 7:
+//                    return PropertyType.Float;
+//                case 5:
+//                case 9:
+//                    return PropertyType.Integer;
+//                case 10:
+//                case 11:
+//                    return PropertyType.Datetime;
+//                default:
+//                    if (field.MaxChar > 1024)
+//                    {
+//                        return PropertyType.Text;
+//                    }
+//                    else
+//                    {
+//                        return PropertyType.String;
+//                    }
+//            }
         }
     }
 }
