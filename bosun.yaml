@@ -1,0 +1,9 @@
+apps:
+- name: plugin-zoho-creator
+  branching:
+    master: master
+    develop: master
+    release: ""
+    feature: issue/{{.Number}}/{{.Slug}}
+  repo: naveego/plugin-zoho-creator
+  version: 1.1.0

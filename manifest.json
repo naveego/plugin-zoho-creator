@@ -4,7 +4,7 @@
   "description": "Publisher which pulls data from a Zoho Creator instance",
   "apiVersion": "2",
   "versionDescription": "Version 1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "iconFile": "icon.jpg",
   "executable": "PluginZohoCreator",
   "kind": "publisher",
@@ -17,7 +17,8 @@
   "configSchema": {
     "ui": {
       "ui:order": [
-        "Token"
+        "Token",
+        "CustomSchemaList"
       ]
     },
     "schema": {
@@ -27,6 +28,41 @@
           "type": "string",
           "title": "Authentication Token",
           "description": "Zoho Creator API authentication token. You can get one here: https://accounts.zoho.com/apiauthtoken/create?SCOPE=ZohoCreator/creatorapi"
+        },
+        "CustomSchemaList": {
+          "type": "array",
+          "title": "Custom Schemas",
+          "items": {
+            "type": "object",
+            "properties": {
+              "ApplicationOwner": {
+                "type": "string",
+                "title": "Application Owner",
+                "description": "The Application Owner (ex. username)"
+              },
+              "ApplicationName": {
+                "type": "string",
+                "title": "Application Name",
+                "description": "The Application Name (ex. application-name)"
+              },
+              "FormName": {
+                "type": "string",
+                "title": "Form Name",
+                "description": "The Form Name (ex. Form_Name)"
+              },
+              "ViewName": {
+                "type": "string",
+                "title": "View Name",
+                "description": "The View Name (ex. View_Name)"
+              }
+            },
+            "required": [
+              "ApplicationOwner",
+              "ApplicationName",
+              "FormName",
+              "ViewName"
+            ]
+          }
         }
       },
       "required": [
