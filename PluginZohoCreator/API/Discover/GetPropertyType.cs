@@ -12,6 +12,7 @@ namespace PluginZohoCreator.API.Discover
         /// <returns>The property type</returns>
         private static PropertyType GetPropertyType(Field field)
         {
+            return PropertyType.String;
             switch (field.ApiType)
             {
                 case 6:
@@ -42,6 +43,7 @@ namespace PluginZohoCreator.API.Discover
         /// <returns>The property type</returns>
         private static PropertyType GetPropertyType(CustomField field)
         {
+            return PropertyType.String;
             switch (field.Type)
             {
                 case 6:

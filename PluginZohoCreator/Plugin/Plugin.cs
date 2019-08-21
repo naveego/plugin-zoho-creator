@@ -138,9 +138,10 @@ namespace PluginZohoCreator.Plugin
             Logger.Info("Discovering Schemas...");
 
             DiscoverSchemasResponse discoverSchemasResponse = new DiscoverSchemasResponse();
-            
+
             discoverSchemasResponse.Schemas.AddRange(await Discover.GetAllSchemas(_client));
-            discoverSchemasResponse.Schemas.AddRange(await Discover.GetAllCustomSchemas(_client, _server.Settings.CustomSchemaList));
+            discoverSchemasResponse.Schemas.AddRange(
+                await Discover.GetAllCustomSchemas(_client, _server.Settings.CustomSchemaList));
 
             Logger.Info($"Schemas found: {discoverSchemasResponse.Schemas.Count}");
 
@@ -155,7 +156,7 @@ namespace PluginZohoCreator.Plugin
                 discoverSchemasResponse.Schemas.AddRange(schemas.Join(refreshSchemas, schema => schema.Id,
                     refreshSchema => refreshSchema.Id,
                     (schema, refresh) => schema));
-                
+
                 Logger.Debug($"Refresh requested on schemas: {JsonConvert.SerializeObject(refreshSchemas)}");
 
                 Logger.Info($"Schemas returned: {discoverSchemasResponse.Schemas.Count}");
@@ -183,37 +184,51 @@ namespace PluginZohoCreator.Plugin
             var recordsCount = 0;
 
             Logger.Info($"Publishing records for schema: {schema.Name}");
-            
+
             try
             {
                 // get information from schema
                 var publisherMetaJson = JsonConvert.DeserializeObject<PublisherMetaJson>(schema.PublisherMetaJson);
-                
+
                 var recordsResponse = await Read.GetAllRecordsAsync(_client, publisherMetaJson);
-                
+
                 // publish each record in the page
-                foreach (var record in recordsResponse[publisherMetaJson.FormName])
+                foreach (var record in recordsResponse)
                 {
                     try
                     {
                         foreach (var property in schema.Properties)
                         {
-                            if (property.Type == PropertyType.String)
+                            if (record.ContainsKey(property.Id))
                             {
-                                var value = record[property.Id];
-                                if (!(value is string))
+                                if (record[property.Id] != null)
                                 {
-                                    record[property.Id] = JsonConvert.SerializeObject(value);
+                                    switch (property.Type)
+                                    {
+                                        case PropertyType.String:
+                                            var value = record[property.Id];
+                                            if (!(value is string))
+                                            {
+                                                record[property.Id] = JsonConvert.SerializeObject(value);
+                                            }
+
+                                            continue;
+                                    }
                                 }
+                            }
+                            else
+                            {
+                                record[property.Id] = null;
                             }
                         }
                     }
                     catch (Exception e)
                     {
+                        Logger.Error("ReadStream Processing");
                         Logger.Error(e.Message);
                         continue;
                     }
-                    
+
                     var recordOutput = new Record
                     {
                         Action = Record.Types.Action.Upsert,
@@ -235,6 +250,7 @@ namespace PluginZohoCreator.Plugin
             }
             catch (Exception e)
             {
+                Logger.Error("ReadStream");
                 Logger.Error(e.Message);
                 throw;
             }

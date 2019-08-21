@@ -51,7 +51,7 @@ namespace PluginZohoCreator.API.Discover
                 // if response is empty or call did not succeed return null
                 if (! await Utility.Utility.IsSuccessAndNotEmpty(response))
                 {
-                    Logger.Info($"No fields for: {view.DisplayName}\n{await response.Content.ReadAsStringAsync()}");
+                    Logger.Debug($"No fields for: {view.DisplayName}\n{await response.Content.ReadAsStringAsync()}");
                     return null;
                 }
 

@@ -5,6 +5,7 @@
         <TargetFramework>netcoreapp2.2</TargetFramework>
         <RootNamespace>PluginZohoCreator</RootNamespace>
         <RuntimeIdentifiers>win-x64;linux-x64;osx-x64</RuntimeIdentifiers>
+        <LangVersion>8</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>

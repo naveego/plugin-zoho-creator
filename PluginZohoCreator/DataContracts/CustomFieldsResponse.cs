@@ -6,7 +6,7 @@ namespace PluginZohoCreator.DataContracts
     public class CustomFieldsResponse
     {
         [JsonProperty("response")]
-        public Dictionary<string, CustomFieldsObject> Response { get; set; }
+        public Dictionary<string, object> Response { get; set; }
     }
     
     public class CustomFieldsObject

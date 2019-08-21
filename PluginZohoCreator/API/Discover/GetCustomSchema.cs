@@ -16,7 +16,7 @@ namespace PluginZohoCreator.API.Discover
         /// <param name="client"></param>
         /// <param name="customUrlObject"></param>
         /// <returns>A custom schema</returns>
-        public static async Task<Schema> GetCustomSchema(RequestHelper client, CustomUrlObject customUrlObject)
+        private static async Task<Schema> GetCustomSchema(RequestHelper client, CustomUrlObject customUrlObject)
         {
             var schemaName = $"Custom {customUrlObject.ApplicationName} {customUrlObject.ViewName}";
             
