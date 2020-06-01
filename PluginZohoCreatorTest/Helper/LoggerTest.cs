@@ -7,7 +7,7 @@ namespace PluginZohoCreatorTest.Helper
 {
     public class LoggerTest
     {
-        private static string _path = @"plugin-zoho-creator-log.txt";
+        private static string _path = @"logs/plugin-zoho-creator-log.txt";
         
         [Fact]
         public void VerboseTest()
