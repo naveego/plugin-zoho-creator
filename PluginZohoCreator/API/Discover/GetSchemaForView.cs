@@ -1,9 +1,10 @@
 using System;
 using System.Threading.Tasks;
+using Naveego.Sdk.Plugins;
 using Newtonsoft.Json;
 using PluginZohoCreator.DataContracts;
 using PluginZohoCreator.Helper;
-using Pub;
+
 
 namespace PluginZohoCreator.API.Discover
 {
@@ -104,7 +105,7 @@ namespace PluginZohoCreator.API.Discover
             }
             catch (Exception e)
             {
-                Logger.Error($"Get Schema For View: {e.Message}");
+                Logger.Error(e, $"Get Schema For View: {e.Message}");
                 return null;
             }
         }

@@ -32,7 +32,7 @@ namespace PluginZohoCreator.Helper
             }
             catch (Exception e)
             {
-                Logger.Error(e.Message);
+                Logger.Error(e, e.Message);
                 throw;
             }
             
@@ -60,7 +60,7 @@ namespace PluginZohoCreator.Helper
             }
             catch (Exception e)
             {
-                Logger.Error(e.Message);
+                Logger.Error(e, e.Message);
                 throw;
             }
         }
@@ -76,7 +76,7 @@ namespace PluginZohoCreator.Helper
             }
             catch (Exception e)
             {
-                Logger.Error(e.Message);
+                Logger.Error(e, e.Message);
                 throw;
             }
             
@@ -106,7 +106,7 @@ namespace PluginZohoCreator.Helper
             }
             catch (Exception e)
             {
-                Logger.Error(e.Message);
+                Logger.Error(e, e.Message);
                 throw;
             }
         }
@@ -122,7 +122,7 @@ namespace PluginZohoCreator.Helper
             }
             catch (Exception e)
             {
-                Logger.Error(e.Message);
+                Logger.Error(e, e.Message);
                 throw;
             }
             
@@ -152,7 +152,7 @@ namespace PluginZohoCreator.Helper
             }
             catch (Exception e)
             {
-                Logger.Error(e.Message);
+                Logger.Error(e, e.Message);
                 throw;
             }
         }

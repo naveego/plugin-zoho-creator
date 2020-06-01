@@ -5,13 +5,14 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Grpc.Core;
+using Naveego.Sdk.Plugins;
 using Newtonsoft.Json;
 using PluginZohoCreator.API.Discover;
 using PluginZohoCreator.API.Read;
 using PluginZohoCreator.API.Utility;
 using PluginZohoCreator.DataContracts;
 using PluginZohoCreator.Helper;
-using Pub;
+
 
 namespace PluginZohoCreator.Plugin
 {
@@ -52,7 +53,7 @@ namespace PluginZohoCreator.Plugin
             }
             catch (Exception e)
             {
-                Logger.Error(e.Message);
+                Logger.Error(e, e.Message, context);
                 return new ConnectResponse
                 {
                     OauthStateJson = request.OauthStateJson,
@@ -69,8 +70,14 @@ namespace PluginZohoCreator.Plugin
             }
             catch (Exception e)
             {
-                Logger.Error(e.Message);
-                throw;
+                Logger.Error(e, e.Message, context);
+                return new ConnectResponse
+                {
+                    OauthStateJson = request.OauthStateJson,
+                    ConnectionError = "",
+                    OauthError = "",
+                    SettingsError = e.Message
+                };
             }
 
             // attempt to call the Zoho api
@@ -86,7 +93,7 @@ namespace PluginZohoCreator.Plugin
             }
             catch (Exception e)
             {
-                Logger.Error(e.Message);
+                Logger.Error(e, e.Message, context);
 
                 return new ConnectResponse
                 {
@@ -135,37 +142,46 @@ namespace PluginZohoCreator.Plugin
         public override async Task<DiscoverSchemasResponse> DiscoverSchemas(DiscoverSchemasRequest request,
             ServerCallContext context)
         {
-            Logger.Info("Discovering Schemas...");
-
-            DiscoverSchemasResponse discoverSchemasResponse = new DiscoverSchemasResponse();
-
-            discoverSchemasResponse.Schemas.AddRange(await Discover.GetAllSchemas(_client));
-            discoverSchemasResponse.Schemas.AddRange(
-                await Discover.GetAllCustomSchemas(_client, _server.Settings.CustomSchemaList));
-
-            Logger.Info($"Schemas found: {discoverSchemasResponse.Schemas.Count}");
-
-            // only return requested schemas if refresh mode selected
-            if (request.Mode == DiscoverSchemasRequest.Types.Mode.Refresh)
+            try
             {
-                var refreshSchemas = request.ToRefresh;
-                var schemas =
-                    JsonConvert.DeserializeObject<Schema[]>(
-                        JsonConvert.SerializeObject(discoverSchemasResponse.Schemas));
-                discoverSchemasResponse.Schemas.Clear();
-                discoverSchemasResponse.Schemas.AddRange(schemas.Join(refreshSchemas, schema => schema.Id,
-                    refreshSchema => refreshSchema.Id,
-                    (schema, refresh) => schema));
+                Logger.SetLogPrefix("discover");
+                Logger.Info("Discovering Schemas...");
 
-                Logger.Debug($"Refresh requested on schemas: {JsonConvert.SerializeObject(refreshSchemas)}");
+                DiscoverSchemasResponse discoverSchemasResponse = new DiscoverSchemasResponse();
 
+                discoverSchemasResponse.Schemas.AddRange(await Discover.GetAllSchemas(_client));
+                discoverSchemasResponse.Schemas.AddRange(
+                    await Discover.GetAllCustomSchemas(_client, _server.Settings.CustomSchemaList));
+
+                Logger.Info($"Schemas found: {discoverSchemasResponse.Schemas.Count}");
+
+                // only return requested schemas if refresh mode selected
+                if (request.Mode == DiscoverSchemasRequest.Types.Mode.Refresh)
+                {
+                    var refreshSchemas = request.ToRefresh;
+                    var schemas =
+                        JsonConvert.DeserializeObject<Schema[]>(
+                            JsonConvert.SerializeObject(discoverSchemasResponse.Schemas));
+                    discoverSchemasResponse.Schemas.Clear();
+                    discoverSchemasResponse.Schemas.AddRange(schemas.Join(refreshSchemas, schema => schema.Id,
+                        refreshSchema => refreshSchema.Id,
+                        (schema, refresh) => schema));
+
+                    Logger.Debug($"Refresh requested on schemas: {JsonConvert.SerializeObject(refreshSchemas)}");
+
+                    Logger.Info($"Schemas returned: {discoverSchemasResponse.Schemas.Count}");
+                    return discoverSchemasResponse;
+                }
+
+                // return all schemas otherwise
                 Logger.Info($"Schemas returned: {discoverSchemasResponse.Schemas.Count}");
                 return discoverSchemasResponse;
             }
-
-            // return all schemas otherwise
-            Logger.Info($"Schemas returned: {discoverSchemasResponse.Schemas.Count}");
-            return discoverSchemasResponse;
+            catch (Exception e)
+            {
+                Logger.Error(e, e.Message, context);
+                return new DiscoverSchemasResponse();
+            }
         }
 
         /// <summary>
@@ -183,6 +199,7 @@ namespace PluginZohoCreator.Plugin
             var limitFlag = request.Limit != 0;
             var recordsCount = 0;
 
+            Logger.SetLogPrefix(request.JobId);
             Logger.Info($"Publishing records for schema: {schema.Name}");
 
             try
@@ -224,8 +241,8 @@ namespace PluginZohoCreator.Plugin
                     }
                     catch (Exception e)
                     {
-                        Logger.Error("ReadStream Processing");
-                        Logger.Error(e.Message);
+                        Logger.Error(e, "ReadStream Processing");
+                        Logger.Error(e, e.Message);
                         continue;
                     }
 
@@ -250,9 +267,8 @@ namespace PluginZohoCreator.Plugin
             }
             catch (Exception e)
             {
-                Logger.Error("ReadStream");
-                Logger.Error(e.Message);
-                throw;
+                Logger.Error(e, "ReadStream");
+                Logger.Error(e, e.Message, context);
             }
         }
 

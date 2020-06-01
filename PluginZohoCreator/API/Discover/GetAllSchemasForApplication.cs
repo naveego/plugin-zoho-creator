@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Naveego.Sdk.Plugins;
 using Newtonsoft.Json;
 using PluginZohoCreator.DataContracts;
 using PluginZohoCreator.Helper;
-using Pub;
+
 
 namespace PluginZohoCreator.API.Discover
 {
@@ -40,8 +41,8 @@ namespace PluginZohoCreator.API.Discover
             }
             catch (Exception e)
             {
-                Logger.Error("Get All Schemas for Application 1");
-                Logger.Error(e.Message);
+                Logger.Error(e, "Get All Schemas for Application 1");
+                Logger.Error(e, e.Message);
                 throw;
             }
 
@@ -62,8 +63,8 @@ namespace PluginZohoCreator.API.Discover
             }
             catch (Exception e)
             {
-                Logger.Error("Get All Schemas for Application 2");
-                Logger.Error(e.Message);
+                Logger.Error(e, "Get All Schemas for Application 2");
+                Logger.Error(e, e.Message);
                 throw;
             }
         }

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using PluginZohoCreator.DataContracts;
 using PluginZohoCreator.Helper;
-using Pub;
+
 
 namespace PluginZohoCreator.API.Read
 {
@@ -62,8 +62,8 @@ namespace PluginZohoCreator.API.Read
             }
             catch (Exception e)
             {
-                Logger.Error("GetAllRecordsAsync");
-                Logger.Error(e.Message);
+                Logger.Error(e, "GetAllRecordsAsync");
+                Logger.Error(e, e.Message);
                 throw;
             }
         }

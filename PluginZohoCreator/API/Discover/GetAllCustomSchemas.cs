@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Naveego.Sdk.Plugins;
 using PluginZohoCreator.Helper;
-using Pub;
+
 
 namespace PluginZohoCreator.API.Discover
 {
@@ -37,7 +38,7 @@ namespace PluginZohoCreator.API.Discover
             }
             catch (Exception e)
             {
-                Logger.Error($"Get All Custom Schemas: {e.Message}");
+                Logger.Error(e, $"Get All Custom Schemas: {e.Message}");
                 throw;
             }
         }

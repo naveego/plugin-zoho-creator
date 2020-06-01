@@ -4,12 +4,13 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Grpc.Core;
+using Naveego.Sdk.Plugins;
 using Newtonsoft.Json;
 using PluginZohoCreator.DataContracts;
-using Pub;
+
 using RichardSzalay.MockHttp;
 using Xunit;
-using Record = Pub.Record;
+using Record = Naveego.Sdk.Plugins.Record;
 
 namespace PluginZohoCreatorTest.Plugin
 {
