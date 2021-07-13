@@ -14,7 +14,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Naveego.Sdk" Version="1.1.0" />
+      <PackageReference Include="Naveego.Sdk" Version="1.2.2" />
       <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     </ItemGroup>
 
